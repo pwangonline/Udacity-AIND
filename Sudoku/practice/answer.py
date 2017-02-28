@@ -92,6 +92,7 @@ def search(values):
 
 pprint.pprint(search(grid_values(grid2)))
 
+# reduce_puzzle(grid_values(grid))
 # pprint.pprint(reduce_puzzle(grid_values(grid)))
 
 # only_choice(grid_values(grid))
