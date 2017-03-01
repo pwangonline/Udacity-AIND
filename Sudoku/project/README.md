@@ -8,7 +8,7 @@ This technique should be combined with other methods like eliminate and only cho
 
 # Question 2 (Diagonal Sudoku)
 Q: How do we use constraint propagation to solve the diagonal sudoku problem?
-A: *Student should provide answer here*
+A: Compare to the normal sudoku problem, the diagonal sudoku problem introduced another constraint which is: among the two main diagonals, the numbers 1 to 9 should all appear exactly once. Thus boxes on the two main diagonals will have new peers and constraint. When we construct the units, we need to have two diagonal unit in addition to the row units, column units and square units.
 
 ### Install
 
