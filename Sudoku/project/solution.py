@@ -1,3 +1,5 @@
+import pprint
+
 assignments = []
 
 
@@ -39,6 +41,32 @@ def naked_twins(values):
 
     # Find all instances of naked twins
     # Eliminate the naked twins as possibilities for their peers
+    pprint.pprint('============')
+    display(values)
+    naked_twins = []
+    duplicates = []
+    possible_twins = [box for box in values.keys() if len(values[box])==2]
+    pprint.pprint('possible_twins: ')
+    pprint.pprint(possible_twins)
+    # naked_twins = [[box1, box2] for box1 in possible_twins for box2 in peers[box1] if values[box1]==values[box2]]
+    for box1 in possible_twins:
+        for box2 in peers[box1]:
+            if values[box1]==values[box2] and box1 not in duplicates and box2 not in duplicates:
+                # pprint.pprint([box1, box2, [peer for peer in peers[box1] if peer != box2]])
+                naked_twins.append([box1, box2, [peer for peer in peers[box1] if peer in peers[box2]]])
+                duplicates.append(box1)
+                duplicates.append(box2)
+    pprint.pprint(naked_twins)
+    for twins in naked_twins:
+        pprint.pprint('twin value: '+values[twins[0]])
+        for peer in twins[2]:
+            pprint.pprint(values[peer])
+            if len(values[peer])>2:
+                for digit in values[twins[0]]:
+                    values = assign_value(values, peer, values[peer].replace(digit, ''))
+    pprint.pprint(duplicates)
+    pprint.pprint('============')
+    return values
 
 
 def grid_values(grid):
@@ -68,6 +96,7 @@ def display(values):
     Args:
         values(dict): The sudoku in dictionary form
     """
+
     width = 1 + max(len(values[s]) for s in boxes)
     line = '+'.join(['-' * (width * 3)] * 3)
     for r in rows:
@@ -83,7 +112,8 @@ def eliminate(values):
     for box in solved_values:
         digit = values[box]
         for peer in peers[box]:
-            values[peer] = values[peer].replace(digit, '')
+            # values[peer] = values[peer].replace(digit, '')
+            values = assign_value(values, peer, values[peer].replace(digit, ''))
     return values
 
 
@@ -92,7 +122,8 @@ def only_choice(values):
         for digit in '123456789':
             dplace = [box for box in unit if digit in values[box]]
             if len(dplace) == 1:
-                values[dplace[0]] = digit
+                # values[dplace[0]] = digit
+                values = assign_value(values, dplace[0], digit)
     return values
 
 
@@ -103,9 +134,7 @@ def reduce_puzzle(values):
             [box for box in values.keys() if len(values[box]) == 1])
         values = eliminate(values)
         values = only_choice(values)
-        # ====================
-        # add naked twins here
-        # ====================
+        values = naked_twins(values)
         solved_values_after = len(
             [box for box in values.keys() if len(values[box]) == 1])
         stalled = solved_values_before == solved_values_after
@@ -118,9 +147,9 @@ def search(values):
     values = reduce_puzzle(values)
     if values is False:
         return False
-    if all(len(values[s]) == 1 for s in boxes):
+    if all(len(values[s]) == 1 for s in values.keys()):
         return values
-    n, s = min((len(values[s]), s) for s in boxes if len(values[s]) > 1)
+    n, s = min((len(values[s]), s) for s in values.keys() if len(values[s]) > 1)
     for value in values[s]:
         new_sudoku = values.copy()
         new_sudoku[s] = value
@@ -138,7 +167,7 @@ def solve(grid):
     Returns:
         The dictionary representation of the final sudoku grid. False if no solution exists.
     """
-    return grid_values(grid)
+    return search(grid_values(grid))
 
 if __name__ == '__main__':
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
