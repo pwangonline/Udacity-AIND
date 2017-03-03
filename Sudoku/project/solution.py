@@ -41,31 +41,17 @@ def naked_twins(values):
 
     # Find all instances of naked twins
     # Eliminate the naked twins as possibilities for their peers
-    pprint.pprint('============')
-    display(values)
     naked_twins = []
-    duplicates = []
     possible_twins = [box for box in values.keys() if len(values[box])==2]
-    pprint.pprint('possible_twins: ')
-    pprint.pprint(possible_twins)
-    # naked_twins = [[box1, box2] for box1 in possible_twins for box2 in peers[box1] if values[box1]==values[box2]]
     for box1 in possible_twins:
         for box2 in peers[box1]:
-            if values[box1]==values[box2] and box1 not in duplicates and box2 not in duplicates:
-                # pprint.pprint([box1, box2, [peer for peer in peers[box1] if peer != box2]])
+            if values[box1]==values[box2]:
                 naked_twins.append([box1, box2, [peer for peer in peers[box1] if peer in peers[box2]]])
-                duplicates.append(box1)
-                duplicates.append(box2)
-    pprint.pprint(naked_twins)
     for twins in naked_twins:
-        pprint.pprint('twin value: '+values[twins[0]])
         for peer in twins[2]:
-            pprint.pprint(values[peer])
             if len(values[peer])>2:
                 for digit in values[twins[0]]:
                     values = assign_value(values, peer, values[peer].replace(digit, ''))
-    pprint.pprint(duplicates)
-    pprint.pprint('============')
     return values
 
 
