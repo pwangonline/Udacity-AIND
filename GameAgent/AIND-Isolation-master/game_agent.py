@@ -13,7 +13,6 @@ class Timeout(Exception):
     """Subclass base exception for code clarity."""
     pass
 
-
 def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
@@ -124,19 +123,25 @@ class CustomPlayer:
         # move from the game board (i.e., an opening book), or returning
         # immediately if there are no legal moves
 
+        # print('legal_moves====================================')
+        # print(legal_moves)
+        # print(self.score(game, self))
+        # print('legal_moves_end====================================')
+        next_move = legal_moves[0]
+
         try:
             # The search method call (alpha beta or minimax) should happen in
             # here in order to avoid timeout. The try/except block will
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
-            pass
+            return next_move
 
         except Timeout:
             # Handle any actions required at timeout, if necessary
-            pass
+            return next_move
 
         # Return the best move from the last completed search iteration
-        raise NotImplementedError
+        # raise NotImplementedError
 
     def minimax(self, game, depth, maximizing_player=True):
         """Implement the minimax search algorithm as described in the lectures.
@@ -173,7 +178,23 @@ class CustomPlayer:
             raise Timeout()
 
         # TODO: finish this function!
-        raise NotImplementedError
+        # raise NotImplementedError
+
+        if depth == 0: return self.score(game, self), game.get_player_location(self)
+        if not game.get_legal_moves(self): return self.score(game, self), (-1,-1)
+
+        list = [self.minimax(game.forecast_move(move), depth-1, not maximizing_player) for move in game.get_legal_moves(self)]
+        good_choice = list[0]
+        if maximizing_player:
+            for choice in list:
+                if good_choice[0] < choice[0]:
+                    good_choice = choice
+        if not maximizing_player:
+            for choice in list:
+                if good_choice[0] > choice[0]:
+                    good_choice = choice
+        return tuple(good_choice)
+
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
         """Implement minimax search with alpha-beta pruning as described in the
