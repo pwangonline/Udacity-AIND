@@ -13,6 +13,7 @@ class Timeout(Exception):
     """Subclass base exception for code clarity."""
     pass
 
+
 def custom_score(game, player):
     """Calculate the heuristic value of a game state from the point of view
     of the given player.
@@ -37,7 +38,11 @@ def custom_score(game, player):
     """
 
     # TODO: finish this function!
-    raise NotImplementedError
+    # raise NotImplementedError
+
+    my_moves = game.get_legal_moves()
+    opponent_moves = game.get_legal_moves(game.get_opponent(player))
+    return float(len(my_moves) - len(opponent_moves))
 
 
 class CustomPlayer:
@@ -195,7 +200,7 @@ class CustomPlayer:
         # raise NotImplementedError
 
         if depth == 0: return self.score(game, self), game.get_player_location(self)
-        if not game.get_legal_moves(): return self.score(game, self), (-1,-1)
+        if not game.get_legal_moves(): return self.score(game, self), (-1, -1)
         if maximizing_player:
             good_value = float("-inf")
         else:
@@ -204,10 +209,9 @@ class CustomPlayer:
         for move in game.get_legal_moves():
             v, m = self.minimax(game.forecast_move(move), depth - 1, not maximizing_player)
             if (maximizing_player and v > good_value) or (not maximizing_player and v < good_value):
-                        good_value = v
-                        good_move = move
+                good_value = v
+                good_move = move
         return good_value, good_move
-
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
         """Implement minimax search with alpha-beta pruning as described in the
@@ -254,7 +258,7 @@ class CustomPlayer:
         # raise NotImplementedError
 
         if depth == 0: return self.score(game, self), game.get_player_location(self)
-        if not game.get_legal_moves(): return self.score(game, self), (-1,-1)
+        if not game.get_legal_moves(): return self.score(game, self), (-1, -1)
 
         if maximizing_player:
             good_value = float("-inf")
@@ -284,4 +288,3 @@ class CustomPlayer:
                     good_value = v
                     good_move = move
             return good_value, good_move
-
