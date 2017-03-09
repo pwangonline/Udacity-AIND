@@ -127,6 +127,8 @@ class CustomPlayer:
         # print(legal_moves)
         # print(self.score(game, self))
         # print('legal_moves_end====================================')
+
+        if not legal_moves: return (-1, -1)
         next_move = legal_moves[0]
 
         try:
@@ -134,11 +136,23 @@ class CustomPlayer:
             # here in order to avoid timeout. The try/except block will
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
-            return next_move
-
+            depth = 0
+            if self.iterative:
+                while True:
+                    if self.method == 'minimax':
+                        v, next_move = self.minimax(game, depth)
+                    elif self.method == 'alphabeta':
+                        v, next_move = self.alphabeta(game, depth)
+                    depth = depth + 1
+            else:
+                if self.method == 'minimax':
+                    v, next_move = self.minimax(game, 1)
+                elif self.method == 'alphabeta':
+                    v, next_move = self.alphabeta(game, 1)
         except Timeout:
             # Handle any actions required at timeout, if necessary
-            return next_move
+            pass
+        return next_move
 
         # Return the best move from the last completed search iteration
         # raise NotImplementedError
