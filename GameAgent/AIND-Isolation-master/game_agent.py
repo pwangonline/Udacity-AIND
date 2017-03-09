@@ -181,19 +181,18 @@ class CustomPlayer:
         # raise NotImplementedError
 
         if depth == 0: return self.score(game, self), game.get_player_location(self)
-        if not game.get_legal_moves(self): return self.score(game, self), (-1,-1)
-
-        list = [self.minimax(game.forecast_move(move), depth-1, not maximizing_player) for move in game.get_legal_moves(self)]
-        good_choice = list[0]
+        if not game.get_legal_moves(): return self.score(game, self), (-1,-1)
         if maximizing_player:
-            for choice in list:
-                if good_choice[0] < choice[0]:
-                    good_choice = choice
-        if not maximizing_player:
-            for choice in list:
-                if good_choice[0] > choice[0]:
-                    good_choice = choice
-        return tuple(good_choice)
+            good_value = float("-inf")
+        else:
+            good_value = float("inf")
+        good_move = (-1, -1)
+        for move in game.get_legal_moves():
+            v, m = self.minimax(game.forecast_move(move), depth - 1, not maximizing_player)
+            if (maximizing_player and v > good_value) or (not maximizing_player and v < good_value):
+                        good_value = v
+                        good_move = move
+        return good_value, good_move
 
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf"), maximizing_player=True):
