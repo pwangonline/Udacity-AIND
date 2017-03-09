@@ -237,4 +237,37 @@ class CustomPlayer:
             raise Timeout()
 
         # TODO: finish this function!
-        raise NotImplementedError
+        # raise NotImplementedError
+
+        if depth == 0: return self.score(game, self), game.get_player_location(self)
+        if not game.get_legal_moves(): return self.score(game, self), (-1,-1)
+
+        if maximizing_player:
+            good_value = float("-inf")
+        else:
+            good_value = float("inf")
+        good_move = (-1, -1)
+
+        if maximizing_player:
+            for move in game.get_legal_moves():
+                v, m = self.alphabeta(game.forecast_move(move), depth - 1, alpha, beta, not maximizing_player)
+                if v >= beta:
+                    return float("inf"), (-1, -1)
+                if v > alpha:
+                    alpha = v
+                if v > good_value:
+                    good_value = v
+                    good_move = move
+            return good_value, good_move
+        else:
+            for move in game.get_legal_moves():
+                v, m = self.alphabeta(game.forecast_move(move), depth - 1, alpha, beta, not maximizing_player)
+                if v <= alpha:
+                    return float("-inf"), (-1, -1)
+                if v < beta:
+                    beta = v
+                if v < good_value:
+                    good_value = v
+                    good_move = move
+            return good_value, good_move
+
