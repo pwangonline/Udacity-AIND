@@ -133,7 +133,8 @@ class CustomPlayer:
         # print(self.score(game, self))
         # print('legal_moves_end====================================')
 
-        if not legal_moves: return (-1, -1)
+        if not legal_moves:
+            return (-1, -1)
         next_move = legal_moves[0]
 
         try:
@@ -141,8 +142,8 @@ class CustomPlayer:
             # here in order to avoid timeout. The try/except block will
             # automatically catch the exception raised by the search method
             # when the timer gets close to expiring
-            depth = 0
             if self.iterative:
+                depth = 0
                 while True:
                     if self.method == 'minimax':
                         v, next_move = self.minimax(game, depth)
@@ -151,9 +152,9 @@ class CustomPlayer:
                     depth = depth + 1
             else:
                 if self.method == 'minimax':
-                    v, next_move = self.minimax(game, 1)
+                    v, next_move = self.minimax(game, self.search_depth)
                 elif self.method == 'alphabeta':
-                    v, next_move = self.alphabeta(game, 1)
+                    v, next_move = self.alphabeta(game, self.search_depth)
         except Timeout:
             # Handle any actions required at timeout, if necessary
             pass
@@ -199,15 +200,18 @@ class CustomPlayer:
         # TODO: finish this function!
         # raise NotImplementedError
 
-        if depth == 0: return self.score(game, self), game.get_player_location(self)
-        if not game.get_legal_moves(): return self.score(game, self), (-1, -1)
+        if depth == 0:
+            return self.score(game, self), game.get_player_location(self)
+        if not game.get_legal_moves():
+            return self.score(game, self), (-1, -1)
         if maximizing_player:
             good_value = float("-inf")
         else:
             good_value = float("inf")
         good_move = (-1, -1)
         for move in game.get_legal_moves():
-            v, m = self.minimax(game.forecast_move(move), depth - 1, not maximizing_player)
+            v, m = self.minimax(game.forecast_move(
+                move), depth - 1, not maximizing_player)
             if (maximizing_player and v > good_value) or (not maximizing_player and v < good_value):
                 good_value = v
                 good_move = move
@@ -257,8 +261,10 @@ class CustomPlayer:
         # TODO: finish this function!
         # raise NotImplementedError
 
-        if depth == 0: return self.score(game, self), game.get_player_location(self)
-        if not game.get_legal_moves(): return self.score(game, self), (-1, -1)
+        if depth == 0:
+            return self.score(game, self), game.get_player_location(self)
+        if not game.get_legal_moves():
+            return self.score(game, self), (-1, -1)
 
         if maximizing_player:
             good_value = float("-inf")
@@ -268,9 +274,10 @@ class CustomPlayer:
 
         if maximizing_player:
             for move in game.get_legal_moves():
-                v, m = self.alphabeta(game.forecast_move(move), depth - 1, alpha, beta, not maximizing_player)
+                v, m = self.alphabeta(game.forecast_move(
+                    move), depth - 1, alpha, beta, not maximizing_player)
                 if v >= beta:
-                    return float("inf"), (-1, -1)
+                    return v, move
                 if v > alpha:
                     alpha = v
                 if v > good_value:
@@ -279,9 +286,10 @@ class CustomPlayer:
             return good_value, good_move
         else:
             for move in game.get_legal_moves():
-                v, m = self.alphabeta(game.forecast_move(move), depth - 1, alpha, beta, not maximizing_player)
+                v, m = self.alphabeta(game.forecast_move(
+                    move), depth - 1, alpha, beta, not maximizing_player)
                 if v <= alpha:
-                    return float("-inf"), (-1, -1)
+                    return v, move
                 if v < beta:
                     beta = v
                 if v < good_value:
