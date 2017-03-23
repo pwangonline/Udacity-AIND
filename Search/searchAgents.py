@@ -298,20 +298,22 @@ class CornersProblem(search.SearchProblem):
                 print 'Warning: no food in corner ' + str(corner)
         self._expanded = 0  # Number of search nodes expanded
 
-        self._visitedlist = []
-        self._cornersVisited = []
-
     def getStartState(self):
         "Returns the start state (in your state space, not the full Pacman state space)"
         # "*** YOUR CODE HERE ***"
         # util.raiseNotDefined()
-        return self.startingPosition
+        return self.startingPosition, []
 
     def isGoalState(self, state):
         "Returns whether this search state is a goal state of the problem"
         # "*** YOUR CODE HERE ***"
         # util.raiseNotDefined()
-        return len(self._cornersVisited) == len(self.corners)
+        node = state[0]
+        cornersVisited = state[1]
+
+        if node in self.corners and node not in cornersVisited:
+            cornersVisited.append(node)
+        return len(cornersVisited) == len(self.corners)
 
     def getSuccessors(self, state):
         """
@@ -325,12 +327,6 @@ class CornersProblem(search.SearchProblem):
          cost of expanding to that successor
         """
 
-        if state not in self._visitedlist:
-            # self._visited[state] = True
-            self._visitedlist.append(state)
-            if state in self.corners:
-                self._cornersVisited.append(state)
-
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
@@ -340,13 +336,18 @@ class CornersProblem(search.SearchProblem):
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
             # "*** YOUR CODE HERE ***"
-            x, y = state
+            (x, y), cornersVisited = state
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             if not self.walls[nextx][nexty]:
-                nextState = (nextx, nexty)
                 cost = 1
-                successors.append((nextState, action, cost))
+                nextState = (nextx, nexty)
+                if nextState in self.corners and nextState not in cornersVisited:
+                    successors.append(
+                        ((nextState, cornersVisited + [nextState]), action, cost))
+                else:
+                    successors.append(
+                        ((nextState, cornersVisited), action, cost))
 
         self._expanded += 1
         return successors
