@@ -1,14 +1,20 @@
 # search.py
 # ---------
-# Licensing Information: Please do not distribute or publish solutions to this
-# project. You are free to use and extend these projects for educational
-# purposes. The Pacman AI projects were developed at UC Berkeley, primarily by
-# John DeNero (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
-# For more info, see http://inst.eecs.berkeley.edu/~cs188/sp09/pacman.html
+# Licensing Information:  You are free to use or extend these projects for
+# educational purposes provided that (1) you do not distribute or publish
+# solutions, (2) you retain this notice, and (3) you provide clear
+# attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
+#
+# Attribution Information: The Pacman AI projects were developed at UC Berkeley.
+# The core projects and autograders were primarily created by John DeNero
+# (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
+# Student side autograding was added by Brad Miller, Nick Hay, and
+# Pieter Abbeel (pabbeel@cs.berkeley.edu).
+
 
 """
-In search.py, you will implement generic search algorithms which are called
-by Pacman agents (in searchAgents.py).
+In search.py, you will implement generic search algorithms which are called by
+Pacman agents (in searchAgents.py).
 """
 
 import util
@@ -24,7 +30,7 @@ class SearchProblem:
 
     def getStartState(self):
         """
-        Returns the start state for the search problem
+        Returns the start state for the search problem.
         """
         util.raiseNotDefined()
 
@@ -32,7 +38,7 @@ class SearchProblem:
         """
           state: Search state
 
-        Returns True if and only if the state is a valid goal state
+        Returns True if and only if the state is a valid goal state.
         """
         util.raiseNotDefined()
 
@@ -40,11 +46,10 @@ class SearchProblem:
         """
           state: Search state
 
-        For a given state, this should return a list of triples,
-        (successor, action, stepCost), where 'successor' is a
-        successor to the current state, 'action' is the action
-        required to get there, and 'stepCost' is the incremental
-        cost of expanding to that successor
+        For a given state, this should return a list of triples, (successor,
+        action, stepCost), where 'successor' is a successor to the current
+        state, 'action' is the action required to get there, and 'stepCost' is
+        the incremental cost of expanding to that successor.
         """
         util.raiseNotDefined()
 
@@ -52,16 +57,16 @@ class SearchProblem:
         """
          actions: A list of actions to take
 
-        This method returns the total cost of a particular sequence of actions.  The sequence must
-        be composed of legal moves
+        This method returns the total cost of a particular sequence of actions.
+        The sequence must be composed of legal moves.
         """
         util.raiseNotDefined()
 
 
 def tinyMazeSearch(problem):
     """
-    Returns a sequence of moves that solves tinyMaze.  For any other
-    maze, the sequence of moves will be incorrect, so only use this for tinyMaze
+    Returns a sequence of moves that solves tinyMaze.  For any other maze, the
+    sequence of moves will be incorrect, so only use this for tinyMaze.
     """
     from game import Directions
     s = Directions.SOUTH
@@ -71,12 +76,10 @@ def tinyMazeSearch(problem):
 
 def depthFirstSearch(problem):
     """
-    Search the deepest nodes in the search tree first
-    [2nd Edition: p 75, 3rd Edition: p 87]
+    Search the deepest nodes in the search tree first.
 
-    Your search algorithm needs to return a list of actions that reaches
-    the goal.  Make sure to implement a graph search algorithm
-    [2nd Edition: Fig. 3.18, 3rd Edition: Fig 3.7].
+    Your search algorithm needs to return a list of actions that reaches the
+    goal. Make sure to implement a graph search algorithm.
 
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
@@ -85,64 +88,57 @@ def depthFirstSearch(problem):
     print "Is the start a goal?", problem.isGoalState(problem.getStartState())
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
-    visited = []
+    "*** YOUR CODE HERE ***"
     stack = util.Stack()
-    stack.push(problem.getStartState(), [], 0)
+    stack.push((problem.getStartState(), [], 0))
+    visited = [problem.getStartState()]
     while not stack.isEmpty():
         state, path, cost = stack.pop()
+        if problem.isGoalState(state):
+            return path
         for new_state, step, step_cost in problem.getSuccessors(state):
             if new_state not in visited:
-                if problem.isGoalState(new_state):
-                    return path
                 stack.push((new_state, path + [step], cost + step_cost))
                 visited.append(state)
 
 
 def breadthFirstSearch(problem):
-    """
-    Search the shallowest nodes in the search tree first.
-    [2nd Edition: p 73, 3rd Edition: p 82]
-    """
-
-    visited = []
+    """Search the shallowest nodes in the search tree first."""
+    "*** YOUR CODE HERE ***"
     queue = util.Queue()
     queue.push((problem.getStartState(), [], 0))
+    visited = [problem.getStartState()]
     while not queue.isEmpty():
         state, path, cost = queue.pop()
+        if problem.isGoalState(state):
+            return path
         for new_state, step, step_cost in problem.getSuccessors(state):
             if new_state not in visited:
-                if problem.isGoalState(new_state):
-                    return path + [step]
                 queue.push((new_state, path + [step], cost + step_cost))
                 visited.append(new_state)
 
-    # visited = []
-    # queue = util.Queue()
-    # queue.push((problem.getStartState(), [], 0))
-    # while not queue.isEmpty():
-    #     state, path, cost = queue.pop()
-    #     if problem.isGoalState(state):
-    #         return path
-    #     visited.append(state)
-    #     for new_state, step, step_cost in problem.getSuccessors(state):
-    #         if new_state not in visited:
-    #             queue.push((new_state, path + [step], cost + step_cost))
-
 
 def uniformCostSearch(problem):
-    "Search the node of least total cost first. "
-    visited = []
+    """Search the node of least total cost first."""
+    "*** YOUR CODE HERE ***"
     pq = util.PriorityQueue()
     pq.push((problem.getStartState(), [], 0), 0)
+    visited = [problem.getStartState()]
+    minCost, bestPath = None, None
     while not pq.isEmpty():
         state, path, cost = pq.pop()
+        if minCost is not None and cost >= minCost:
+            continue
         for new_state, step, step_cost in problem.getSuccessors(state):
+            if problem.isGoalState(new_state):
+                if minCost is None or cost + step_cost < minCost:
+                    minCost, bestPath = cost + step_cost, path + [step]
+                continue
             if new_state not in visited:
-                if problem.isGoalState(new_state):
-                    return path
                 pq.push((new_state, path + [step],
                          cost + step_cost), cost + step_cost)
-                visited.append(state)
+                visited.append(new_state)
+    return bestPath
 
 
 def nullHeuristic(state, problem=None):
@@ -154,20 +150,28 @@ def nullHeuristic(state, problem=None):
 
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-    "Search the node that has the lowest combined cost and heuristic first."
-    visited = []
+    """Search the node that has the lowest combined cost and heuristic first."""
+    "*** YOUR CODE HERE ***"
     pq = util.PriorityQueueWithFunction(lambda c:  c[2])
     pq.push((problem.getStartState(), [], 0 +
              heuristic(problem.getStartState(), problem)))
+    visited = [problem.getStartState()]
+    minCost, bestPath = None, None
     while not pq.isEmpty():
         state, path, cost = pq.pop()
+        if minCost is not None and cost >= minCost:
+            visited.append(state)
+            continue
         for new_state, step, step_cost in problem.getSuccessors(state):
+            if problem.isGoalState(new_state):
+                if minCost is None or cost + step_cost < minCost:
+                    minCost, bestPath = cost + step_cost, path + [step]
+                continue
             if new_state not in visited:
-                if problem.isGoalState(state):
-                    return path + [step]
                 pq.push(
                     (new_state, path + [step], cost + step_cost + heuristic(new_state, problem)))
                 visited.append(new_state)
+    return bestPath
 
 
 # Abbreviations
