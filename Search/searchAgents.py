@@ -497,8 +497,49 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
+    walls = problem.walls
     "*** YOUR CODE HERE ***"
-    return 0
+
+    def localDist(start, end):
+        return abs(start[0] - end[0]) + abs(start[1] - end[1])
+
+    def getSuccessors(state):
+        successors = []
+        for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+            x, y = state
+            dx, dy = Actions.directionToVector(direction)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not walls[nextx][nexty]:
+                successors.append(((nextx, nexty), direction, 1))
+        return successors
+
+    def trueDist(start, end):
+        visited = []
+        pq = util.PriorityQueueWithFunction(lambda c:  c[2])
+        pq.push((start, [], 0 + localDist(start, end)))
+        while not pq.isEmpty():
+            state, path, cost = pq.pop()
+            for new_state, step, step_cost in getSuccessors(state):
+                if new_state not in visited:
+                    if new_state == end:
+                        return cost + step_cost
+                    pq.push(
+                        (new_state, path + [step], cost + step_cost + localDist(new_state, end)))
+                    visited.append(new_state)
+
+    def findDist(start, end):
+        dist = trueDist(start, end)
+        # if expand(start, end):
+        #     return dist
+        # else:
+        #     return dist + 1
+        return dist
+
+    totalDist = 0
+    for food in foodGrid.asList():
+        # localDist = abs(position[0] - food[0]) + abs(position[1] - food[1])
+        totalDist += localDist(position, food)
+    return totalDist
 
 
 class ClosestDotSearchAgent(SearchAgent):
