@@ -392,8 +392,9 @@ def cornersHeuristic(state, problem):
     for corner in corners:
         if corner in cornersVisited:
             continue
-        totalDist += ((node[0] - corner[0]) ** 2 +
-                      (node[1] - corner[1]) ** 2) ** 0.5
+        totalDist += abs(node[0] - corner[0]) + abs(node[1] - corner[1])
+        # totalDist += ((node[0] - corner[0]) ** 2 +
+        #               (node[1] - corner[1]) ** 2) ** 0.5
 
     "*** YOUR CODE HERE ***"
     return totalDist  # Default to trivial solution
