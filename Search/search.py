@@ -90,12 +90,12 @@ def depthFirstSearch(problem):
     stack.push(problem.getStartState(), [], 0)
     while not stack.isEmpty():
         state, path, cost = stack.pop()
-        if problem.isGoalState(state):
-            return path
-        visited.append(state)
         for new_state, step, step_cost in problem.getSuccessors(state):
             if new_state not in visited:
+                if problem.isGoalState(new_state):
+                    return path
                 stack.push((new_state, path + [step], cost + step_cost))
+                visited.append(state)
 
 
 def breadthFirstSearch(problem):
@@ -136,13 +136,13 @@ def uniformCostSearch(problem):
     pq.push((problem.getStartState(), [], 0), 0)
     while not pq.isEmpty():
         state, path, cost = pq.pop()
-        if problem.isGoalState(state):
-            return path
-        visited.append(state)
         for new_state, step, step_cost in problem.getSuccessors(state):
             if new_state not in visited:
+                if problem.isGoalState(new_state):
+                    return path
                 pq.push((new_state, path + [step],
                          cost + step_cost), cost + step_cost)
+                visited.append(state)
 
 
 def nullHeuristic(state, problem=None):
@@ -161,13 +161,13 @@ def aStarSearch(problem, heuristic=nullHeuristic):
              heuristic(problem.getStartState(), problem)))
     while not pq.isEmpty():
         state, path, cost = pq.pop()
-        if problem.isGoalState(state):
-            return path
-        visited.append(state)
         for new_state, step, step_cost in problem.getSuccessors(state):
             if new_state not in visited:
+                if problem.isGoalState(state):
+                    return path + [step]
                 pq.push(
                     (new_state, path + [step], cost + step_cost + heuristic(new_state, problem)))
+                visited.append(new_state)
 
 
 # Abbreviations
