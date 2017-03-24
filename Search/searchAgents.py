@@ -569,8 +569,30 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # "*** YOUR CODE HERE ***"
+        # util.raiseNotDefined()
+
+        def getSuccessors(state):
+            successors = []
+            for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
+                x, y = state
+                dx, dy = Actions.directionToVector(direction)
+                nextx, nexty = int(x + dx), int(y + dy)
+                if not walls[nextx][nexty]:
+                    successors.append(((nextx, nexty), direction, 1))
+            return successors
+
+        visited = []
+        queue = util.Queue()
+        queue.push((startPosition, [], 0))
+        while not queue.isEmpty():
+            state, path, cost = queue.pop()
+            for new_state, step, step_cost in getSuccessors(state):
+                if new_state not in visited:
+                    if food[new_state[0]][new_state[1]]:
+                        return path + [step]
+                    queue.push((new_state, path + [step], cost + step_cost))
+                    visited.append(new_state)
 
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -606,8 +628,14 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         """
         x, y = state
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # "*** YOUR CODE HERE ***"
+        # util.raiseNotDefined()
+
+        for row in self.food:
+            for isFood in row:
+                if isFood is True and (row != x or col != y):
+                    return False
+        return True
 
 ##################
 # Mini-contest 1 #
