@@ -291,6 +291,7 @@ class CornersProblem(search.SearchProblem):
 		"""
 		Stores the walls, pacman's starting position and corners.
 		"""
+		self.gameState = startingGameState
 		self.walls = startingGameState.getWalls()
 		self.startingPosition = startingGameState.getPacmanPosition()
 		top, right = self.walls.height - 2, self.walls.width - 2
@@ -393,14 +394,19 @@ def cornersHeuristic(state, problem):
 	node = state[0]
 	cornersVisited = state[1]
 
-	for corner in corners:
-		if corner in cornersVisited:
-			continue
-		totalDist += abs(node[0] - corner[0]) + abs(node[1] - corner[1])
-		# totalDist += ((node[0] - corner[0]) ** 2 +
-		#               (node[1] - corner[1]) ** 2) ** 0.5
+	l = [len(search.ucs(PositionSearchProblem(problem.gameState, start=node, goal=corner, warn=False))) for corner in corners if corner not in cornersVisited]
+	if len(l) == 0:
+		return 0
+	return max(l)
 
-	return totalDist  # Default to trivial solution
+	# for corner in corners:
+	# 	if corner in cornersVisited:
+	# 		continue
+	# 	totalDist += abs(node[0] - corner[0]) + abs(node[1] - corner[1])
+	# 	# totalDist += ((node[0] - corner[0]) ** 2 +
+	# 	#               (node[1] - corner[1]) ** 2) ** 0.5
+	#
+	# return totalDist  # Default to trivial solution
 
 
 class AStarCornersAgent(SearchAgent):
