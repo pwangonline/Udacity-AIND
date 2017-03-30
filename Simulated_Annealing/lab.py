@@ -1,7 +1,7 @@
 import json
 import copy
 
-import itertools
+import time
 
 import numpy as np  # contains helpful math functions like numpy.exp()
 import numpy.random as random  # see numpy.random module
@@ -73,7 +73,21 @@ def simulated_annealing(problem, schedule):
 	AIMA simulated_annealing() pseudocode
 		https://github.com/aimacode/aima-pseudocode/blob/master/md/Simulated-Annealing.md
 	"""
-	raise NotImplementedError
+	# raise NotImplementedError
+	current = problem
+	starttime = time.time()
+	while True:
+		temperature = schedule(time.time() - starttime)
+		if temperature == 0 or temperature < 0.1:
+			return current
+		next = problem.successors()
+		if len(next) > 0:
+			next = np.random.choice(next, 1)[0]
+		else:
+			continue
+		deltaE = next.get_value() - current.get_value()
+		if deltaE > 0 or random.random() < (np.exp(deltaE / temperature)):
+			current = next
 
 
 class TravelingSalesmanProblem:
@@ -198,3 +212,42 @@ assert (all(x in [[('LA', (0, -4)), ('SF', (0, 0)), ('PHX', (2, -3)), ('DC', (11
 
 # Test the get_value() method -- no output means the test passed
 assert (np.allclose(tsp.get_value(), -28.97, atol=1e-3))
+
+# These are presented as globals so that the signature of schedule()
+# matches what is shown in the AIMA textbook; you could alternatively
+# define them within the schedule function, use a closure to limit
+# their scope, or define an object if you would prefer not to use
+# global variables
+alpha = 0.95
+temperature = 1e4
+
+def schedule(time):
+	return temperature * (alpha ** time)
+
+# test the schedule() function -- no output means that the tests passed
+assert (np.allclose(alpha, 0.95, atol=1e-3))
+assert (np.allclose(schedule(0), temperature, atol=1e-3))
+assert (np.allclose(schedule(10), 5987.3694, atol=1e-3))
+
+# Failure implies that the initial path of the test case has been changed
+# assert(tsp.path == [('DC', (11, 1)), ('SF', (0, 0)), ('PHX', (2, -3)), ('LA', (0, -4))])
+# result = simulated_annealing(tsp, schedule)
+# print("Initial score: {}\nStarting Path: {!s}".format(tsp.get_value(), tsp.path))
+# print("Final score: {}\nFinal Path: {!s}".format(result.get_value(), result.path))
+# assert(tsp.path != result.path)
+# assert(result.get_value() > tsp.get_value())
+
+# Create the problem instance and plot the initial state
+num_cities = 30
+capitals_tsp = TravelingSalesmanProblem(capitals_list[:num_cities])
+starting_city = capitals_list[0]
+print("Initial path value: {:.2f}".format(-capitals_tsp.get_value()))
+print(capitals_list[:num_cities])  # The start/end point is indicated with a yellow star
+show_path(capitals_tsp.coords, starting_city)
+
+alpha = 0.95
+temperature=1e6
+result = simulated_annealing(capitals_tsp, schedule)
+print("Final path length: {:.2f}".format(-result.get_value()))
+print(result.path)
+show_path(result.coords, starting_city)
