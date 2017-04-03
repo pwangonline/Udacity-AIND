@@ -156,8 +156,7 @@ class AirCargoProblem(Problem):
 		:param action: Action applied
 		:return: resulting state after action
 		"""
-		# TODO implement
-		new_state=FluentState([], [])
+		new_state=FluentState(action.effect_add, action.effect_rem)
 		return encode_state(new_state, self.state_map)
 
 	def goal_test(self, state: str) -> bool:
