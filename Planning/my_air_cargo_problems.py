@@ -136,8 +136,15 @@ class AirCargoProblem(Problem):
 				e.g. 'FTTTFF'
 		:return: list of Action objects
 		"""
-		# TODO implement
+
+		def contains(a: list, b: list):
+			return all(x in b for x in a)
+		fs = decode_state(state, self.state_map)
+		actions = self.get_actions()
 		possible_actions=[]
+		for action in actions:
+			if contains(action.precond_pos, fs.pos) and contains(action.precond_neg, fs.neg):
+				possible_actions.append(action)
 		return possible_actions
 
 	def result(self, state: str, action: Action):
