@@ -59,17 +59,9 @@ class AirCargoProblem(Problem):
 			:return: list of Action objects
 			'''
 			loads = []
-			# fs = decode_state(self.initial_state_TF, self.state_map)
-			# print('fs.pos')
-			# print(fs.pos)
-			# print('fs.neg')
-			# print(fs.neg)
 			for cargo in self.cargos:
 				for airport in self.airports:
 					for plane in self.planes:
-						# if expr("At({}, {})".format(cargo, airport)) in fs.pos and \
-						# 				expr("At({}, {})".format(plane, airport)) in fs.pos and \
-						# 				expr("In({}, {})".format(cargo, plane)) in fs.neg:
 						precond_pos = [expr("At({}, {})".format(plane, airport)),
 						               expr("At({}, {})".format(cargo, airport))]
 						precond_neg = [expr("In({}, {})".format(cargo, plane))]
@@ -86,14 +78,9 @@ class AirCargoProblem(Problem):
 			:return: list of Action objects
 			'''
 			unloads=[]
-			# fs = decode_state(self.initial_state_TF, self.state_map)
 			for cargo in self.cargos:
 				for airport in self.airports:
 					for plane in self.planes:
-						# if expr("At({}, {})".format(cargo, airport)) in fs.pos and \
-						# 				expr("At({}, {})".format(plane, airport)) in fs.pos and \
-						# 				expr("In({}, {})".format(cargo, plane)) in fs.pos:
-						# 	print("unload!!!")
 						precond_pos = [expr("At({}, {})".format(plane, airport)),
 						               expr("At({}, {})".format(cargo, airport)),
 						               expr("In({}, {})".format(cargo, plane))]
@@ -156,7 +143,18 @@ class AirCargoProblem(Problem):
 		:param action: Action applied
 		:return: resulting state after action
 		"""
-		new_state=FluentState(action.effect_add, action.effect_rem)
+		fs = decode_state(state, self.state_map)
+		for add in action.effect_add:
+			if add in fs.neg:
+				fs.neg.remove(add)
+			if add not in fs.pos:
+				fs.pos.append(add)
+		for rem in action.effect_rem:
+			if rem in fs.pos:
+				fs.pos.remove(rem)
+			if rem not in fs.neg:
+				fs.neg.append(rem)
+		new_state=FluentState(fs.pos, fs.neg)
 		return encode_state(new_state, self.state_map)
 
 	def goal_test(self, state: str) -> bool:
