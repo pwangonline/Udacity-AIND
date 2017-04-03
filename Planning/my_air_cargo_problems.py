@@ -68,10 +68,10 @@ class AirCargoProblem(Problem):
 				for airport in self.airports:
 					for plane in self.planes:
 						# if expr("At({}, {})".format(cargo, airport)) in fs.pos and \
-						# 				expr("At({}, ""{})".format(plane, airport)) in fs.pos and \
+						# 				expr("At({}, {})".format(plane, airport)) in fs.pos and \
 						# 				expr("In({}, {})".format(cargo, plane)) in fs.neg:
-						precond_pos = [expr("At({}, ""{})".format(plane, airport)),
-						               expr("At({}, ""{})".format(cargo, airport))]
+						precond_pos = [expr("At({}, {})".format(plane, airport)),
+						               expr("At({}, {})".format(cargo, airport))]
 						precond_neg = [expr("In({}, {})".format(cargo, plane))]
 						effect_add = [expr("In({}, {})".format(cargo, plane))]
 						effect_rem = []
@@ -91,11 +91,11 @@ class AirCargoProblem(Problem):
 				for airport in self.airports:
 					for plane in self.planes:
 						# if expr("At({}, {})".format(cargo, airport)) in fs.pos and \
-						# 				expr("At({}, ""{})".format(plane, airport)) in fs.pos and \
+						# 				expr("At({}, {})".format(plane, airport)) in fs.pos and \
 						# 				expr("In({}, {})".format(cargo, plane)) in fs.pos:
 						# 	print("unload!!!")
-						precond_pos = [expr("At({}, ""{})".format(plane, airport)),
-						               expr("At({}, ""{})".format(cargo, airport)),
+						precond_pos = [expr("At({}, {})".format(plane, airport)),
+						               expr("At({}, {})".format(cargo, airport)),
 						               expr("In({}, {})".format(cargo, plane))]
 						precond_neg = []
 						effect_add = []
@@ -137,7 +137,7 @@ class AirCargoProblem(Problem):
 		:return: list of Action objects
 		"""
 
-		def contains(a: list, b: list):
+		def contains(a: list, b: list) -> bool:
 			return all(x in b for x in a)
 		fs = decode_state(state, self.state_map)
 		actions = self.get_actions()
