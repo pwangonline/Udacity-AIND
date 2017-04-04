@@ -311,24 +311,33 @@ class PlanningGraph():
 		#   set iff all prerequisite literals for the action hold in S0.  This can be accomplished by testing
 		#   to see if a proposed PgNode_a has prenodes that are a subset of the previous S level.  Once an
 		#   action node is added, it MUST be connected to the S node instances in the appropriate s_level set.
-		def satisfyAction(action: Action, condition_list: list) -> bool:
+		def get_action_parent(action: Action, state_list: list) -> set:
+			p_list = set()
 			for precond in action.precond_pos:
 				satisfy_precond = False
-				for condition in condition_list:
-					if condition.symbol == precond and condition.is_pos is True:
+				for state in state_list:
+					if state.symbol == precond and state.is_pos is True:
 						satisfy_precond = True
-				if not satisfy_precond: return False
+						p_list.add(state)
+				if not satisfy_precond: return set()
 			for precond in action.precond_neg:
 				satisfy_precond = False
-				for condition in condition_list:
-					if condition.symbol == precond and condition.is_pos is False:
+				for state in state_list:
+					if state.symbol == precond and state.is_pos is False:
 						satisfy_precond = True
-				if not satisfy_precond: return False
-			return True
-		self.a_levels.append(set())
+						p_list.add(state)
+				if not satisfy_precond: return set()
+			return p_list
+		actions = set()
 		for action in self.all_actions:
-			if satisfyAction(action, self.s_levels[level]):
-				self.a_levels[level].add(PgNode_a(action))
+			parent_list = get_action_parent(action, self.s_levels[level])
+			if len(parent_list) > 0:
+				node = PgNode_a(action)
+				node.parents = parent_list
+				actions.add(PgNode_a(action))
+				for state in parent_list:
+					state.children.add(action)
+		self.a_levels.append(actions)
 
 	def add_literal_level(self, level):
 		''' add an S (literal) level to the Planning Graph
@@ -347,6 +356,23 @@ class PlanningGraph():
 		#   may be "added" to the set without fear of duplication.  However, it is important to then correctly create and connect
 		#   all of the new S nodes as children of all the A nodes that could produce them, and likewise add the A nodes to the
 		#   parent sets of the S nodes
+		if level < 1: return
+
+		literals = set()
+		previous_states = self.s_levels[level-1]
+		previous_actions = self.a_levels[level-1]
+
+		for state in previous_states:
+			node = PgNode_s(state.symbol, state.is_pos)
+			node.parents = {state}
+			state.children.add(state)
+			literals.add(node)
+		for action in previous_actions:
+			for effnode in action.effnodes:
+				node = PgNode_s(effnode.symbol, effnode.is_pos)
+				node.parent = {action}
+				literals.add(node)
+		self.s_levels.append(literals)
 
 	def update_a_mutex(self, nodeset):
 		''' Determine and update sibling mutual exclusion for A-level nodes
