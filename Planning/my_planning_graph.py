@@ -431,7 +431,13 @@ class PlanningGraph():
 		:return: bool
 		'''
 		# TODO test for Inconsistent Effects between nodes
-		return False
+		def test_inconsistent_effects_mutex(a:PgNode_a, b:PgNode_a) -> bool:
+			for eff1 in a.effnodes:
+				for eff_2 in b.effnodes:
+					if eff1.symbol == eff_2.symbol and eff1.is_pos != eff_2.is_pos:
+						return True
+			return False
+		return test_inconsistent_effects_mutex(node_a1, node_a2) or test_inconsistent_effects_mutex(node_a2, node_a1)
 
 	def interference_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
 		'''
@@ -448,7 +454,13 @@ class PlanningGraph():
 		:return: bool
 		'''
 		# TODO test for Interference between nodes
-		return False
+		def test_interference_effects_mutex(a:PgNode_a, b:PgNode_a) -> bool:
+			for pre in a.prenodes:
+				for eff in b.effnodes:
+					if pre.symbol == eff.symbol and pre.is_pos != eff.is_pos:
+						return True
+			return False
+		return test_interference_effects_mutex(node_a1, node_a2) or test_interference_effects_mutex(node_a2, node_a1)
 
 	def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
 		'''
@@ -462,7 +474,13 @@ class PlanningGraph():
 		'''
 
 		# TODO test for Competing Needs between nodes
-		return False
+		def test_competing_needs_mutex(a:PgNode_a, b:PgNode_a) -> bool:
+			for p_a in a.parents:
+				for p_b in b.parents:
+					if p_a in p_b.mutex:
+						return True
+			return False
+		return test_competing_needs_mutex(node_a1, node_a2) or test_competing_needs_mutex(node_a2, node_a1)
 
 	def update_s_mutex(self, nodeset: set):
 		''' Determine and update sibling mutual exclusion for S-level nodes
