@@ -110,7 +110,29 @@ class SelectorDIC(ModelSelector):
 		warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 		# TODO implement model selection based on DIC scores
-		raise NotImplementedError
+		# raise NotImplementedError
+		bestDIC = float("-inf")
+		bestModel = None
+		for n_comp in range(self.min_n_components, self.max_n_components):
+			otherLogL = 0
+			try:
+				model = self.base_model(n_comp)
+				logL = model.score(self.X, self.lengths)
+				for word in self.hwords:
+					if word is self.this_word:
+						continue
+					X, length = self.hwords[word]
+					otherLogL += model.score(X, length)
+				otherLogL /= float(len(self.hwords) -1)
+				dic = logL - otherLogL
+				if dic > bestDIC:
+					bestDIC = dic
+					bestModel = model
+			except:
+				continue
+		print(self.this_word)
+		print(bestDIC)
+		return bestModel
 
 
 class SelectorCV(ModelSelector):
