@@ -93,8 +93,8 @@ class SelectorBIC(ModelSelector):
 					bestModel = model
 			except:
 				continue
-		print(self.this_word)
-		print(bestBIC)
+		# print(self.this_word)
+		# print(bestBIC)
 		return bestModel
 
 class SelectorDIC(ModelSelector):
@@ -130,8 +130,8 @@ class SelectorDIC(ModelSelector):
 					bestModel = model
 			except:
 				continue
-		print(self.this_word)
-		print(bestDIC)
+		# print(self.this_word)
+		# print(bestDIC)
 		return bestModel
 
 
@@ -152,20 +152,26 @@ class SelectorCV(ModelSelector):
 			logLs = []
 			if n_comp > len(self.sequences):
 				continue
-			split_method = KFold(n_splits=n_comp)
-			for cv_train_idx, cv_test_idx in split_method.split(self.sequences):
-				train_X, train_lengths = combine_sequences(cv_train_idx, self.sequences)
-				model = GaussianHMM(n_components=n_comp, covariance_type="diag", n_iter=1000,
-				            random_state=self.random_state, verbose=False).fit(train_X, train_lengths)
-				test_X, test_lengths = combine_sequences(cv_test_idx, self.sequences)
-				logLs.append(model.score(test_X, test_lengths))
-			logL = sum(logLs) / float(len(logLs))
-			if logL > bestLogL:
-				bestLogL = logL
-				bestComp = n_comp
-		bestModel = GaussianHMM(n_components=bestComp, covariance_type="diag", n_iter=1000, random_state=self.random_state, verbose=False).fit(self.X, self.lengths)
-		bestLogL = bestModel.score(self.X, self.lengths)
-		print(self.this_word)
-		print(bestLogL)
+			try:
+				split_method = KFold(n_splits=n_comp)
+				for cv_train_idx, cv_test_idx in split_method.split(self.sequences):
+					train_X, train_lengths = combine_sequences(cv_train_idx, self.sequences)
+					model = GaussianHMM(n_components=n_comp, covariance_type="diag", n_iter=1000,
+					            random_state=self.random_state, verbose=False).fit(train_X, train_lengths)
+					test_X, test_lengths = combine_sequences(cv_test_idx, self.sequences)
+					logLs.append(model.score(test_X, test_lengths))
+					logL = sum(logLs) / float(len(logLs))
+				if logL > bestLogL:
+					bestLogL = logL
+					bestComp = n_comp
+			except:
+				continue
+		try:
+			bestModel = GaussianHMM(n_components=bestComp, covariance_type="diag", n_iter=1000, random_state=self.random_state, verbose=False).fit(self.X, self.lengths)
+			bestLogL = bestModel.score(self.X, self.lengths)
+		except:
+			bestLogL = float('-inf')
+		# print(self.this_word)
+		# print(bestLogL)
 		return bestModel
 
